@@ -194,6 +194,5 @@ int __init vision_wifi_init(void);
 #ifdef CONFIG_MICROP_COMMON
 void __init vision_microp_init(void);
 #endif
-int __init vision_init_panel(void);
 
 #endif /* __ARCH_ARM_MACH_MSM_BOARD_VISION_H */
