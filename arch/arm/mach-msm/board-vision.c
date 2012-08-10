@@ -2310,7 +2310,7 @@ static int panel_gpio_switch(int on)
 /* a hacky interface to control the panel power */
 static void lcdc_config_gpios(int on)
 {
-	printk(KERN_INFO "%s: %d\n", __func__, on);
+	printk(KERN_INFO "%s: power goes to %d\n", __func__, on);
 
 	if (panel_power(on))
 		printk(KERN_ERR "%s: panel_power failed!\n", __func__);
