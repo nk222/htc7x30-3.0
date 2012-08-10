@@ -1,3 +1,6 @@
+
+source "drivers/video/msm_7x30/vidc/Kconfig"
+
 config FB_MSM
 	tristate
 	depends on FB && ARCH_MSM
