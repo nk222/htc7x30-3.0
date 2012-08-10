@@ -463,6 +463,13 @@ obj-$(CONFIG_MACH_SPADE) += board-spade-keypad.o board-spade-audio.o
 obj-$(CONFIG_MACH_SPADE) += board-spade-mmc.o board-spade-wifi.o
 obj-$(CONFIG_MACH_SPADE) += display/spade-panel.o
 obj-$(CONFIG_MACH_SPADE) += htc_bdaddress.o
+obj-$(CONFIG_MACH_GLACIER) += board-glacier.o 
+obj-$(CONFIG_MACH_GLACIER) += board-glacier-microp.o board-glacier-rfkill.o
+obj-$(CONFIG_MACH_GLACIER) += board-glacier-keypad.o board-glacier-audio.o
+obj-$(CONFIG_MACH_GLACIER) += board-glacier-mmc.o board-glacier-wifi.o
+obj-$(CONFIG_MACH_GLACIER) += display/glacier-panel.o
+obj-$(CONFIG_MACH_GLACIER) += htc_fmtx_rfkill.o
+obj-$(CONFIG_MACH_GLACIER) += htc_bdaddress.o
 ifndef CONFIG_MACH_VISION
 obj-$(CONFIG_ARCH_MSM7X30) += display/panel-samsungwvga-tl2796a.o display/panel-samsungwvga-s6e63m0.o 
 ifeq ($(CONFIG_MICROP_COMMON),y)
@@ -470,16 +477,13 @@ ifeq ($(CONFIG_MICROP_COMMON),y)
 endif
 endif
 obj-$(CONFIG_MACH_VISION) += board-vision.o
-obj-$(CONFIG_MACH_VISION) += board-vision-microp.o
-obj-$(CONFIG_MACH_VISION) += board-vision-mmc.o
-obj-$(CONFIG_MACH_VISION) += board-vision-audio.o
-obj-$(CONFIG_MACH_VISION) += board-vision-keypad.o
-obj-$(CONFIG_MACH_VISION) += board-vision-rfkill.o
-obj-$(CONFIG_MACH_VISION) += board-vision-wifi.o
+obj-$(CONFIG_MACH_VISION) += board-vision-microp.o board-vision-rfkill.o
+obj-$(CONFIG_MACH_VISION) += board-vision-keypad.o board-vision-audio.o
+obj-$(CONFIG_MACH_VISION) += board-vision-mmc.o board-vision-wifi.o
 obj-$(CONFIG_MACH_VISION) += htc_bdaddress.o
 obj-$(CONFIG_MACH_SAGA) += board-saga.o
-obj-$(CONFIG_MACH_SAGA) += board-saga-keypad.o
-obj-$(CONFIG_MACH_SAGA) += board-saga-mmc.o board-saga-wifi.o board-saga-rfkill.o
+obj-$(CONFIG_MACH_SAGA) += board-saga-keypad.o board-saga-rfkill.o
+obj-$(CONFIG_MACH_SAGA) += board-saga-mmc.o board-saga-wifi.o
 obj-$(CONFIG_MACH_SAGA) += display/saga-panel.o board-saga-audio.o
 #obj-$(CONFIG_MACH_SAGA) += htc_sleep_clk.o htc_fast_clk_7k.o
 obj-$(CONFIG_MACH_SAGA) += htc_bdaddress.o
