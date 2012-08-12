@@ -66,9 +66,16 @@
 #define MSMFB_WRITEBACK_TERMINATE _IO(MSMFB_IOCTL_MAGIC, 155)
 #define MSMFB_MDP_PP _IOWR(MSMFB_IOCTL_MAGIC, 156, struct msmfb_mdp_pp)
 
+/* HTC: Define custom ioctl started from 200 */
+#define MSMFB_OVERLAY_CHANGE_ZORDER_VG_PIPES _IOW(MSMFB_IOCTL_MAGIC, 200, unsigned int)
+#define MSMFB_GET_GAMMA_CURVY _IOWR(MSMFB_IOCTL_MAGIC, 201, struct gamma_curvy)
+
 #define FB_TYPE_3D_PANEL 0x10101010
 #define MDP_IMGTYPE2_START 0x10000
 #define MSMFB_DRIVER_VERSION	0xF9E8D701
+
+#define MSMFB_GET_USB_PROJECTOR_INFO _IOR(MSMFB_IOCTL_MAGIC, 301, struct msmfb_usb_projector_info)
+#define MSMFB_SET_USB_PROJECTOR_INFO _IOW(MSMFB_IOCTL_MAGIC, 302, struct msmfb_usb_projector_info)
 
 enum {
 	NOTIFY_UPDATE_START,
@@ -485,6 +492,11 @@ struct msmfb_mixer_info_req {
 	int mixer_num;
 	int cnt;
 	struct mdp_mixer_info info[MAX_PIPE_PER_MIXER];
+};
+
+struct msmfb_usb_projector_info {
+	int usb_offset;
+	int latest_offset;
 };
 
 enum {
