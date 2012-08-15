@@ -449,7 +449,7 @@ static int sonywvga_probe(struct platform_device *pdev)
 
 	display_sysfs_init();
 
-	return 0;
+	return rc;
 }
 
 static struct platform_driver this_driver = {

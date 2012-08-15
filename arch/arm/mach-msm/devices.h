@@ -202,6 +202,18 @@ extern unsigned msm_num_clocks_fsm9xxx;
 
 extern struct platform_device msm_footswitch;
 
+#ifdef CONFIG_FB_MSM_NEW
+extern struct resource msm_fb_resources[];
+
+extern struct platform_device msm_fb_device;
+#endif
+
+struct msm_list_device {
+  char *name;
+  void *data;
+};
+
+void __init msm_fb_add_devices(struct msm_list_device *, int);
 void __init msm_fb_register_device(char *name, void *data);
 void __init msm_camera_register_device(void *, uint32_t, void *);
 struct platform_device *msm_add_gsbi9_uart(void);

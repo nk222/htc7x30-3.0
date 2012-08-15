@@ -46,7 +46,7 @@ extern struct platform_device msm_device_mddi0;
 #define MSM_PMEM_MDP_SIZE		0x02000000
 
 #define MSM_FB_BASE				0x2FD00000
-#define MSM_FB_SIZE				0x00300000
+#define MSM_FB_SIZE				0x00465000
 
 #define SAGA_GPIO_WIFI_IRQ             147
 #define SAGA_GPIO_WIFI_SHUTDOWN_N       39
@@ -172,6 +172,8 @@ extern struct platform_device msm_device_mddi0;
 unsigned int saga_get_engineerid(void);
 int saga_init_mmc(unsigned int sys_rev);
 void __init saga_audio_init(void);
+int __init saga_init_panel(void);
+void __init msm_fb_add_devices(void);
 int saga_init_keypad(void);
 int __init saga_wifi_init(void);
 int __init saga_init_panel(void);

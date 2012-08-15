@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/panel-samsungwvga-tl2786a.c
+/* adapted from linux/arch/arm/mach-msm/panel-samsungwvga-tl2786a.c
  *
  * Copyright (c) 2009 Google Inc.
  * Copyright (c) 2009 HTC.
@@ -14,7 +14,6 @@
  *
  */
 
-#include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/init.h>
@@ -22,14 +21,10 @@
 #include <linux/platform_device.h>
 #include <linux/wakelock.h>
 #include <linux/leds.h>
-#include <asm/io.h>
 #include <asm/mach-types.h>
-#include <mach/msm_fb-7x30.h>
 #include <linux/gpio.h>
-#include <mach/msm_iomap.h>
-#include <mach/msm_panel.h>
 #include <linux/spi/spi.h>
-#include "../board-vision.h"
+#include "msm_fb.h"
 
 #define DEBUG_LCM
 #ifdef DEBUG_LCM
@@ -386,8 +381,7 @@ static uint8_t new_val = SAMSUNG_OLED_DEFAULT_VAL;
 static uint8_t last_val = SAMSUNG_OLED_DEFAULT_VAL;
 static uint8_t table_sel_vals[] = { 0x43, 0x34 };
 static int table_sel_idx;
-static int (*amoled_power)(int on);
-static int (*gpio_switch)(int on);
+static void (*panel_power_gpio)(int on);
 static struct wake_lock panel_idle_lock;
 static struct led_trigger *amoled_lcd_backlight;
 static int panel_id = 0;
@@ -438,61 +432,13 @@ static void amoled_set_gamma_val(int val)
 	last_val = val;
 }
 
-static int amoled_panel_unblank(struct msm_lcdc_panel_ops *panel_data)
+static void amoled_panel_power(int on)
 {
-	LCMDBG("%s\n", __func__);
-
-	wake_lock(&panel_idle_lock);
-
-	mutex_lock(&panel_lock);
-	table_sel_idx = 0;
-	gamma_table_bank_select();
-	amoled_set_gamma_val(last_val);
-	qspi_send(0, 0xef);
-	qspi_send(1, 0xd0);
-	qspi_send(1, 0xe8);
-	lcm_write_cmd(0x14, 0x03);
-	mutex_unlock(&panel_lock);
-	wake_unlock(&panel_idle_lock);
-
-	LCMDBG("%s: last_val = %d\n", __func__,last_val);
-	led_trigger_event(amoled_lcd_backlight, LED_FULL);
-	return 0;
+        if (panel_power_gpio)
+          (*panel_power_gpio)(on);
 }
 
-static int amoled_panel_power(int on)
-{
-	int ret = -EIO;
-
-	if (amoled_power) {
-		ret = (*amoled_power)(on);
-		if (ret)
-			goto power_fail;
-	}
-
-	if (gpio_switch) {
-		ret = (*gpio_switch)(on);
-		if (ret)
-			goto power_fail;
-	}
-	return 0;
-
-power_fail:
-	return ret;
-}
-
-static int amoled_panel_blank(struct msm_lcdc_panel_ops *panel_data)
-{
-	LCMDBG("%s\n", __func__);
-	mutex_lock(&panel_lock);
-	lcm_write_tb(lcm_standby_seq, ARRAY_SIZE(lcm_standby_seq));
-	mutex_unlock(&panel_lock);
-	amoled_panel_power(0);
-	led_trigger_event(amoled_lcd_backlight, LED_OFF);
-	return 0;
-}
-
-static int samsung_oled_panel_init(struct msm_lcdc_panel_ops *ops)
+static int samsung_oled_panel_init(void)
 {
 	LCMDBG("%s()\n", __func__);
 
@@ -510,40 +456,52 @@ static int samsung_oled_panel_init(struct msm_lcdc_panel_ops *ops)
 	return 0;
 }
 
-static struct msm_lcdc_panel_ops amoled_lcdc_panel_ops = {
-	.init = samsung_oled_panel_init,
-	.blank = amoled_panel_blank,
-	.unblank = amoled_panel_unblank,
+static int amoled_panel_unblank(struct platform_device *pdev)
+{
+	LCMDBG("%s\n", __func__);
+
+
+        if (samsung_oled_panel_init())
+          printk(KERN_ERR "samsung_oled_panel_init failed\n");
+
+	wake_lock(&panel_idle_lock);
+	mutex_lock(&panel_lock);
+	table_sel_idx = 0;
+	gamma_table_bank_select();
+	amoled_set_gamma_val(last_val);
+	qspi_send(0, 0xef);
+	qspi_send(1, 0xd0);
+	qspi_send(1, 0xe8);
+	lcm_write_cmd(0x14, 0x03);
+	mutex_unlock(&panel_lock);
+	wake_unlock(&panel_idle_lock);
+
+	LCMDBG("%s: last_val = %d\n", __func__,last_val);
+	led_trigger_event(amoled_lcd_backlight, LED_FULL);
+	return 0;
+}
+
+static int amoled_panel_blank(struct platform_device *pdev)
+{
+	LCMDBG("%s\n", __func__);
+	mutex_lock(&panel_lock);
+	lcm_write_tb(lcm_standby_seq, ARRAY_SIZE(lcm_standby_seq));
+	mutex_unlock(&panel_lock);
+	amoled_panel_power(0);
+	led_trigger_event(amoled_lcd_backlight, LED_OFF);
+	return 0;
+}
+
+static struct msm_fb_panel_data amoled_panel_data = {
+	.on = amoled_panel_unblank,
+	.off = amoled_panel_blank,
 };
 
-static struct msm_lcdc_timing amoled_lcdc_timing = {
-	.clk_rate		= 24576000,
-	.hsync_skew		= 0,
-	.vsync_act_low		= 1,
-	.hsync_act_low		= 1,
-	.den_act_low		= 1,
-};
-
-static struct msm_fb_data amoled_lcdc_fb_data = {
-	.xres		= 480,
-	.yres		= 800,
-	.width		= 48,
-	.height		= 80,
-	.output_format	= 0,
-};
-
-static struct msm_lcdc_platform_data amoled_lcdc_platform_data = {
-	.panel_ops	= &amoled_lcdc_panel_ops,
-	.timing		= &amoled_lcdc_timing,
-	.fb_id		= 0,
-	.fb_data	= &amoled_lcdc_fb_data,
-};
-
-static struct platform_device amoled_lcdc_device = {
-	.name	= "msm_mdp_lcdc",
-	.id	= -1,
+static struct platform_device this_device = {
+	.name	= "lcdc_panel",
+	.id	= 1,
 	.dev	= {
-		.platform_data = &amoled_lcdc_platform_data,
+		.platform_data = &amoled_panel_data,
 	},
 };
 
@@ -599,22 +557,9 @@ static int __init amoled_init_panel(void)
 
 	printk(KERN_DEBUG "%s\n", __func__);
 
-	ret = platform_device_register(&msm_device_mdp);
-	if (ret)
-		return ret;
-
-#if 0   /* uses spi driver temporarily */
-	ret = init_spi_hack();
-	if (ret != 0)
-		return ret;
-#endif
 	/* set gpio to proper state in the beginning */
-	if (gpio_switch)
-		(*gpio_switch)(1);
-
-	ret = platform_device_register(&amoled_lcdc_device);
-	if (ret)
-		return ret;
+	if (panel_power_gpio)
+		(*panel_power_gpio)(1);
 
 	wake_lock_init(&panel_idle_lock, WAKE_LOCK_SUSPEND,
 			"backlight_present");
@@ -631,21 +576,10 @@ static int __init amoled_init_panel(void)
 static int amoled_probe(struct platform_device *pdev)
 {
 	int rc = -EIO;
-	struct panel_platform_data *pdata;
-	pdata = pdev->dev.platform_data;
+	struct msm_panel_common_pdata *lcdc_amoled_pdata;
 
-	amoled_power = pdata->power;
-	gpio_switch = pdata->gpio_switch;
-	amoled_lcdc_platform_data.fb_resource = pdata->fb_res;
-	panel_id = amoled_panel_detect();
-
-	amoled_lcdc_timing.hsync_pulse_width      = 4;
-	amoled_lcdc_timing.hsync_back_porch       = 4;
-	amoled_lcdc_timing.hsync_front_porch     = 8;
-	amoled_lcdc_timing.vsync_pulse_width      = 2;
-	amoled_lcdc_timing.vsync_back_porch       = 6;
-	amoled_lcdc_timing.vsync_front_porch      = 8;
-
+	lcdc_amoled_pdata = pdev->dev.platform_data;
+	panel_power_gpio = lcdc_amoled_pdata->panel_config_gpio;
 	printk("Panel type = %d\n", amoled_panel_detect());
 
 	rc = amoled_init_panel();
@@ -655,14 +589,58 @@ static int amoled_probe(struct platform_device *pdev)
 	return rc;
 }
 
-static struct platform_driver amoled_driver = {
+static struct platform_driver this_driver = {
 	.probe = amoled_probe,
-	.driver = { .name = "panel-tl2796a" },
+	.driver = { .name = "lcdc_tl2796a_wvga" },
 };
 
 static int __init amoled_init(void)
 {
-	return platform_driver_register(&amoled_driver);
+	int ret;
+	struct msm_panel_info *pinfo;
+
+#ifdef CONFIG_FB_MSM_MDDI_AUTO_DETECT
+	if (msm_fb_detect_client("lcdc_tl2796a_wvga")) {
+		pr_err("%s: detect failed\n", __func__);
+		return 0;
+	}
+#endif
+	ret = platform_driver_register(&this_driver);
+	if (ret) {
+		pr_err("%s: driver register failed, rc=%d\n", __func__, ret);
+		return ret;
+	}
+
+	pinfo = &amoled_panel_data.panel_info;
+	pinfo->xres = 480;
+	pinfo->yres = 800;
+	pinfo->type = LCDC_PANEL;
+	pinfo->pdest = DISPLAY_1;
+	pinfo->wait_cycle = 0;
+	pinfo->bpp = 18;
+	pinfo->fb_num = 2;
+	pinfo->clk_rate = 24576000;
+	pinfo->bl_max = 255;
+	pinfo->bl_min = 1;
+
+	pinfo->lcdc.h_back_porch = 4;
+	pinfo->lcdc.h_front_porch = 8;
+	pinfo->lcdc.h_pulse_width = 4;
+	pinfo->lcdc.v_back_porch = 6;
+	pinfo->lcdc.v_front_porch = 8;
+	pinfo->lcdc.v_pulse_width = 2;
+	pinfo->lcdc.border_clr = 0;
+	pinfo->lcdc.underflow_clr = 0xff;
+	pinfo->lcdc.hsync_skew = 0;
+
+	ret = platform_device_register(&this_device);
+	if (ret) {
+		printk(KERN_ERR "%s not able to register the device\n",
+			__func__);
+		platform_driver_unregister(&this_driver);
+	}
+
+	return ret;
 }
 
 static int __init amoled_backlight_init(void)

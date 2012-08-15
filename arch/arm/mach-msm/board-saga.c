@@ -123,6 +123,8 @@
 #include <mach/cable_detect.h>
 #endif
 
+extern struct platform_device lcdc_sonywvga_panel_device;
+
 #define GPIO_2MA	0
 #define GPIO_4MA	1
 #define GPIO_6MA	2
@@ -155,7 +157,6 @@ struct pm8xxx_gpio_init_info {
 };
 
 static unsigned int engineerid;
-extern unsigned long msm_fb_base;
 
 unsigned int saga_get_engineerid(void)
 {
@@ -1663,12 +1664,6 @@ static struct platform_device android_pmem_device = {
 	.dev = { .platform_data = &android_pmem_pdata },
 };
 
-static struct resource msm_fb_resources[] = {
-	{
-		.flags  = IORESOURCE_DMA,
-	}
-};
-
 static struct platform_device msm_migrate_pages_device = {
 	.name   = "msm_migrate_pages",
 	.id     = -1,
@@ -1788,6 +1783,7 @@ static struct platform_device msm_vpe_device = {
        .resource = msm_vpe_resources,
 };
 #endif
+
 
 #ifdef CONFIG_MSM_CAMERA
 static struct i2c_board_info msm_camera_boardinfo[] __initdata = {
@@ -2813,6 +2809,7 @@ static struct platform_device *devices[] __initdata = {
         &msm_device_ssbi7,
 #endif
         &android_pmem_device,
+        &msm_fb_device,
         &msm_migrate_pages_device,
 #ifdef CONFIG_MSM_ROTATOR
         &msm_rotator_device,
@@ -3011,9 +3008,9 @@ static void __init saga_init(void)
 #ifdef CONFIG_MDP4_HW_VSYNC
 	saga_te_gpio_config();
 #endif
-	saga_init_panel();
 	saga_audio_init();
         saga_wifi_init();
+        saga_init_panel();
 	msm_init_pmic_vibrator(3000);
 }
 
@@ -3134,7 +3131,6 @@ static void __init saga_allocate_memory_regions(void)
 	size = fb_size ? : MSM_FB_SIZE;
 	addr = alloc_bootmem_align(size, 0x1000);
 	msm_fb_resources[0].start = __pa(addr);
-	msm_fb_base = msm_fb_resources[0].start;
 	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
 	printk("allocating %lu bytes at %p (%lx physical) for fb\n",
 			size, addr, __pa(addr));

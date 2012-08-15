@@ -1203,6 +1203,38 @@ static void __init msm_register_device(struct platform_device *pdev, void *data)
 			  __func__, ret);
 }
 
+#ifdef CONFIG_FB_MSM_NEW
+
+struct resource msm_fb_resources[] = {
+	{
+		.flags  = IORESOURCE_MEM,
+	}
+};
+
+static struct msm_fb_platform_data msm_fb_pdata = {
+	.mddi_prescan = 1,
+};
+
+struct platform_device msm_fb_device = {
+	.name   = "msm_fb",
+	.id     = 0,
+	.num_resources  = ARRAY_SIZE(msm_fb_resources),
+	.resource       = msm_fb_resources,
+	.dev    = {
+		.platform_data = &msm_fb_pdata,
+	}
+};
+#endif
+
+void __init msm_fb_add_devices(struct msm_list_device *devices, int len)
+{
+  int i;
+
+  for (i = 0; i < len; ++i)
+    msm_fb_register_device(devices[i].name, devices[i].data);
+}
+
+
 void __init msm_fb_register_device(char *name, void *data)
 {
 	if (!strncmp(name, "mdp", 3))

@@ -73,126 +73,7 @@ struct mddi_cmd {
 enum {
 	GATE_ON = 1 << 0,
 };
-static struct renesas_t {
-	struct led_classdev lcd_backlight;
-	struct msm_mddi_client_data *client_data;
-	struct mutex lock;
-	unsigned long status;
-} renesas;
-static struct mddi_cmd tear[] = {
-	LCM_CMD(0x44, 0, 0x01, 0x00, 0x00, 0x00,
-                         0x90, 0x00, 0x00, 0x00)
-		};
 
-static struct mddi_cmd saga_renesas_cmd[] = {
-	LCM_CMD(0x2A, 0, 0x00, 0x00, 0x01, 0xDF),
-	LCM_CMD(0x2B, 0, 0x00, 0x00, 0x03, 0x1F),
-	LCM_CMD(0x36, 0, 0x00, 0x00, 0x00, 0x00),
-	LCM_CMD(0x3A, 0, 0x55, 0x00, 0x00, 0x00),//set_pixel_format 0x66 for 18bit/pixel, 0x77 for 24bit/pixel
-};
-static struct mddi_cmd saga_renesas_backlight_blank_cmd[] = {
-	LCM_CMD(0xB9, 0, 0x00, 0x00, 0x00, 0x00,
-			 0xff, 0x00, 0x00, 0x00,
-			 0x04, 0x00, 0x00, 0x00,//adjust PWM frequency to 10.91k .
-			 0x08, 0x00, 0x00, 0x00,),
-};
-static struct mddi_cmd gama[] = {
-           LCM_CMD(0xB0, 0, 0x04, 0x00, 0x00, 0x00),
-           LCM_CMD(0xC1, 0, 0x43, 0x00, 0x00, 0x00,
-                                 0x31, 0x00, 0x00, 0x00,
-                                 0x00, 0x00, 0x00, 0x00,
-                                 0x21, 0x00, 0x00, 0x00,
-                                 0x21, 0x00, 0x00, 0x00,
-                                 0x32, 0x00, 0x00, 0x00,
-                                 0x12, 0x00, 0x00, 0x00,
-                                 0x28, 0x00, 0x00, 0x00,
-                                 0x4A, 0x00, 0x00, 0x00,
-                                 0x1E, 0x00, 0x00, 0x00,
-                                 0xA5, 0x00, 0x00, 0x00,
-                                 0x0F, 0x00, 0x00, 0x00,
-                                 0x58, 0x00, 0x00, 0x00,
-                                 0x21, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00
-           ),
-           LCM_CMD(0xC8, 0, 0x2D, 0x00, 0x00, 0x00,
-                                 0x2F, 0x00, 0x00, 0x00,
-                                 0x31, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x3E, 0x00, 0x00, 0x00,
-                                 0x51, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x23, 0x00, 0x00, 0x00,
-                                 0x16, 0x00, 0x00, 0x00,
-                                 0x0B, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00,
-                                 0x2D, 0x00, 0x00, 0x00,
-                                 0x2F, 0x00, 0x00, 0x00,
-                                 0x31, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x3E, 0x00, 0x00, 0x00,
-                                 0x51, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x23, 0x00, 0x00, 0x00,
-                                 0x16, 0x00, 0x00, 0x00,
-                                 0x0B, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00
-           ),
-           LCM_CMD(0xC9, 0, 0x00, 0x00, 0x00, 0x00,
-                                 0x0F, 0x00, 0x00, 0x00,
-                                 0x18, 0x00, 0x00, 0x00,
-                                 0x25, 0x00, 0x00, 0x00,
-                                 0x33, 0x00, 0x00, 0x00,
-                                 0x4D, 0x00, 0x00, 0x00,
-                                 0x38, 0x00, 0x00, 0x00,
-                                 0x25, 0x00, 0x00, 0x00,
-                                 0x18, 0x00, 0x00, 0x00,
-                                 0x11, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00,
-                                 0x00, 0x00, 0x00, 0x00,
-                                 0x0F, 0x00, 0x00, 0x00,
-                                 0x18, 0x00, 0x00, 0x00,
-                                 0x25, 0x00, 0x00, 0x00,
-                                 0x33, 0x00, 0x00, 0x00,
-                                 0x4D, 0x00, 0x00, 0x00,
-                                 0x38, 0x00, 0x00, 0x00,
-                                 0x25, 0x00, 0x00, 0x00,
-                                 0x18, 0x00, 0x00, 0x00,
-                                 0x11, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00
-           ),
-           LCM_CMD(0xCA, 0, 0x27, 0x00, 0x00, 0x00,
-                                 0x2A, 0x00, 0x00, 0x00,
-                                 0x2E, 0x00, 0x00, 0x00,
-                                 0x34, 0x00, 0x00, 0x00,
-                                 0x3C, 0x00, 0x00, 0x00,
-                                 0x51, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x24, 0x00, 0x00, 0x00,
-                                 0x16, 0x00, 0x00, 0x00,
-                                 0x0C, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00,
-                                 0x27, 0x00, 0x00, 0x00,
-                                 0x2A, 0x00, 0x00, 0x00,
-                                 0x2E, 0x00, 0x00, 0x00,
-                                 0x34, 0x00, 0x00, 0x00,
-                                 0x3C, 0x00, 0x00, 0x00,
-                                 0x51, 0x00, 0x00, 0x00,
-                                 0x36, 0x00, 0x00, 0x00,
-                                 0x24, 0x00, 0x00, 0x00,
-                                 0x16, 0x00, 0x00, 0x00,
-                                 0x0C, 0x00, 0x00, 0x00,
-                                 0x02, 0x00, 0x00, 0x00,
-                                 0x01, 0x00, 0x00, 0x00 ),
-           LCM_CMD(0xD5, 0, 0x14, 0x00, 0x00, 0x00,
-                                 0x14, 0x00, 0x00, 0x00
-           ),
-           LCM_CMD(0xB0, 0, 0x03, 0x00, 0x00, 0x00),
-};
 static uint32_t display_on_gpio_table[] = {
 	LCM_GPIO_CFG(SAGA_LCD_PCLK_1, 1),
 	LCM_GPIO_CFG(SAGA_LCD_DE, 1),
@@ -258,6 +139,36 @@ static inline int is_sony_panel(void){
 static inline int is_hitachi_panel(void){
 	return (panel_type == PANEL_ID_SAG_HITACHI)? 1 : 0;
 }
+
+static int panel_init_power(void)
+{
+  vreg_ldo19 = vreg_get(NULL, "wlan2");
+  
+  if (IS_ERR(vreg_ldo19)) {
+    pr_err("%s: wlan2 vreg get failed (%ld)\n",
+           __func__, PTR_ERR(vreg_ldo19));
+    return -1;
+  }
+  
+  /* lcd panel power */
+  /* 2.85V -- LDO20 */
+  vreg_ldo20 = vreg_get(NULL, "gp13");
+  
+  if (IS_ERR(vreg_ldo20)) {
+    pr_err("%s: gp13 vreg get failed (%ld)\n",
+           __func__, PTR_ERR(vreg_ldo20));
+    return -1;
+  }
+  
+  rc = vreg_set_level(vreg_ldo19, 1800);
+  if (rc) {
+    pr_err("%s: vreg LDO19 set level failed (%d)\n",
+           __func__, rc);
+    return -1;
+  }
+  retrn 0;
+}
+
 static int panel_sony_power(int on)
 {
 	int rc = 0;
@@ -309,346 +220,91 @@ static int panel_sony_power(int on)
 	return 0;
 }
 
-
-static struct resource resources_msm_fb[] = {
-	{
-		.start = MSM_FB_BASE,
-		.end = MSM_FB_BASE + MSM_FB_SIZE - 1,
-		.flags = IORESOURCE_MEM,
-	},
-};
-
-static struct panel_platform_data sonywvga_data = {
-        .fb_res = &resources_msm_fb[0],
-        .power = panel_sony_power,
-        .gpio_switch = panel_gpio_switch,
-};
-
-static struct platform_device sonywvga_panel = {
-        .name = "panel-sonywvga-s6d16a0x21-7x30",
-        .id = -1,
-        .dev = {
-                .platform_data = &sonywvga_data,
-        },
-};
-static void
-do_renesas_cmd(struct msm_mddi_client_data *client_data, struct mddi_cmd *cmd_table, ssize_t size)
+static void lcdc_config_gpios(int on)
 {
-	struct mddi_cmd *pcmd = NULL;
-	for (pcmd = cmd_table; pcmd < cmd_table + size; pcmd++) {
-		client_data->remote_write_vals(client_data, pcmd->vals,
-			pcmd->cmd, pcmd->len);
-		if (pcmd->delay)
-			hr_msleep(pcmd->delay);
-	}
+	printk(KERN_INFO "%s: power goes to %d\n", __func__, on);
+
+	if (panel_sony_power(on))
+		printk(KERN_ERR "%s: panel_power failed!\n", __func__);
+	if (panel_gpio_switch(on))
+		printk(KERN_ERR "%s: panel_gpio_switch failed!\n", __func__);
 }
+
+static struct msm_panel_common_pdata lcdc_panel_data = {
+	.panel_config_gpio = lcdc_config_gpios,
+};
+
+struct platform_device lcdc_sonywvga_panel_device = {
+	.name   = "lcdc_s6d16a0x21_wvga",
+	.id     = 0,
+	.dev    = {
+		.platform_data = &lcdc_panel_data,
+	}
+};
+
 enum led_brightness brightness_value = DEFAULT_BRIGHTNESS;
 
 /* use one flag to have better backlight on/off performance */
 static int saga_set_dim = 1;
 
+int mdp_core_clk_rate_table[] = {
+  122880000,
+  122880000,
+  192000000,
+  192000000,
+};
 
-static int
-saga_shrink_pwm(int brightness, int user_def,
-		int user_min, int user_max, int panel_def,
-		int panel_min, int panel_max)
+static struct msm_panel_common_pdata mdp_pdata = {
+  .hw_revision_addr = 0xac001270,
+  .gpio = 30,
+  .mdp_core_clk_rate = 122880000,
+  .mdp_core_clk_table = mdp_core_clk_rate_table,
+  .num_mdp_clk = ARRAY_SIZE(mdp_core_clk_rate_table),
+  .mdp_rev = MDP_REV_40,
+};
+
+static int lcdc_panel_power(int on)
 {
-	if (brightness < PWM_USER_DIM) {
+	int flag_on = !!on;
+	static int lcdc_power_save_on;
+
+	if (lcdc_power_save_on == flag_on)
 		return 0;
-	}
 
-	if (brightness < user_min) {
-		return panel_min;
-	}
+	lcdc_power_save_on = flag_on;
 
-	if (brightness > user_def) {
-		brightness = (panel_max - panel_def) *
-			(brightness - user_def) /
-			(user_max - user_def) +
-			panel_def;
-	} else {
-			brightness = (panel_def - panel_min) *
-			(brightness - user_min) /
-			(user_def - user_min) +
-			panel_min;
-	}
-
-        return brightness;
+	return panel_sony_power(on);
 }
 
-static void
-saga_set_brightness(struct led_classdev *led_cdev,
-				enum led_brightness val)
-{
-	struct msm_mddi_client_data *client = renesas.client_data;
-	unsigned int shrink_br = val;
-	struct mddi_cmd *pcmd = saga_renesas_backlight_blank_cmd;
-
-	//printk(KERN_DEBUG "set brightness = %d\n", val);
-
-	if (test_bit(GATE_ON, &renesas.status) == 0)
-		return;
-
-	shrink_br = saga_shrink_pwm(val, PWM_USER_DEF,
-				PWM_USER_MIN, PWM_USER_MAX, PWM_HITACHI_DEF,
-				PWM_HITACHI_MIN, PWM_HITACHI_MAX);
-	pcmd->vals[4] = shrink_br;
-
-	mutex_lock(&renesas.lock);
-	if (saga_set_dim == 1) {
-		//client->remote_write(client, 0x2C, 0x5300);
-		/* we dont need set dim again */
-		saga_set_dim = 0;
-	}
-	client->remote_write(client, 0x04, 0xB0);
-        client->remote_write_vals(client, pcmd->vals, pcmd->cmd, pcmd->len);
-	client->remote_write(client, 0x03, 0xB0);
-	brightness_value = val;
-	mutex_unlock(&renesas.lock);
-}
-
-static enum led_brightness
-saga_get_brightness(struct led_classdev *led_cdev)
-{
-
-	return brightness_value;
-}
-
-
-static void
-saga_backlight_switch(struct msm_mddi_client_data *client_data, int on)
-{
-	enum led_brightness val;
-
-	if (on) {
-		printk(KERN_DEBUG "turn on backlight\n");
-		set_bit(GATE_ON, &renesas.status);
-		val = renesas.lcd_backlight.brightness;
-		/* LED core uses get_brightness for default value
-		  If the physical layer is not ready, we should*/
-		if (val == 0)
-			val = DEFAULT_BRIGHTNESS;
-		saga_set_brightness(&renesas.lcd_backlight, val);
-		 /*set next backlight value with dim */
-		//glacier_set_dim = 1;
-	} else {
-		do_renesas_cmd(client_data, saga_renesas_backlight_blank_cmd, ARRAY_SIZE(saga_renesas_backlight_blank_cmd));
-		saga_set_brightness(&renesas.lcd_backlight, 0);
-		clear_bit(GATE_ON, &renesas.status);
-	}
-}
-
-static int
-saga_backlight_probe(struct platform_device *pdev)
-{
-	int err = -EIO;
-
-	mutex_init(&renesas.lock);
-	renesas.client_data = pdev->dev.platform_data;
-	renesas.lcd_backlight.name = "lcd-backlight";
-	renesas.lcd_backlight.brightness_set = saga_set_brightness;
-	renesas.lcd_backlight.brightness_get = saga_get_brightness;
-	err = led_classdev_register(&pdev->dev, &renesas.lcd_backlight);
-	if (err)
-		goto err_register_lcd_bl;
-	return 0;
-
-err_register_lcd_bl:
-	led_classdev_unregister(&renesas.lcd_backlight);
-	return err;
-}
-
-static int
-saga_mddi_init(struct msm_mddi_bridge_platform_data *bridge_data,
-		     struct msm_mddi_client_data *client_data)
-{
-	do_renesas_cmd(client_data, saga_renesas_cmd, ARRAY_SIZE(saga_renesas_cmd));
-	return 0;
-}
-
-static int
-saga_mddi_uninit(struct msm_mddi_bridge_platform_data *bridge_data,
-			struct msm_mddi_client_data *client_data)
-{
-	client_data->auto_hibernate(client_data, 0);
-	client_data->remote_write(client_data, 0x0, 0x10);
-	hr_msleep(72);
-	client_data->auto_hibernate(client_data, 1);
-	return 0;
-}
-
-static int
-saga_panel_blank(struct msm_mddi_bridge_platform_data *bridge_data,
-			struct msm_mddi_client_data *client_data)
-{
-	B(KERN_DEBUG "%s\n", __func__);
-	client_data->remote_write(client_data, 0x04, 0xB0);
-	client_data->remote_write(client_data, 0x0, 0x28);
-	saga_backlight_switch(client_data,LED_OFF);
-	client_data->remote_write(client_data, 0x0, 0xB8);
-	client_data->remote_write(client_data, 0x03, 0xB0);
-	hr_msleep(72);
-	return 0;
-}
-
-static int
-saga_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
-			struct msm_mddi_client_data *client_data)
-{
-	B(KERN_DEBUG "%s +\n", __func__);
-
-	client_data->auto_hibernate(client_data, 0);
-
-	client_data->remote_write(client_data, 0x04, 0xB0);
-
-	client_data->remote_write(client_data, 0x0, 0x11);
-	hr_msleep(125);
-	do_renesas_cmd(client_data, gama, ARRAY_SIZE(gama));
-	saga_backlight_switch(client_data, LED_FULL);
-	client_data->remote_write(client_data, 0x0, 0x29);
-	do_renesas_cmd(client_data, tear, ARRAY_SIZE(tear));
-	client_data->remote_write(client_data, 0x0, 0x35);
-	client_data->remote_write(client_data, 0x03, 0xB0);
-
-	client_data->auto_hibernate(client_data, 1);
-
-	B(KERN_DEBUG "%s -\n", __func__);
-	return 0;
-}
-
-static struct msm_mddi_bridge_platform_data renesas_client_data = {
-	.init = saga_mddi_init,
-	.uninit = saga_mddi_uninit,
-	.blank = saga_panel_blank,
-	.unblank = saga_panel_unblank,
-	.fb_data = {
-		.xres = 480,
-		.yres = 800,
-		.width = 48,
-		.height = 80,
-		.output_format = 0,
-	},
+static struct lcdc_platform_data lcdc_pdata = {
+	.lcdc_power_save = lcdc_panel_power,
 };
 
-static void
-mddi_hitachi_power(struct msm_mddi_client_data *client_data, int on)
-{
-	if (panel_type == PANEL_ID_SAG_HITACHI) {
-		if (on) {
-			vreg_enable(vreg_ldo19);
-			gpio_set_value(SAGA_MDDI_RSTz,0);
-			vreg_enable(vreg_ldo20);
-			hr_msleep(1);
-			gpio_set_value(SAGA_MDDI_RSTz,1);
-			hr_msleep(5);
-		}
-		else {
-			vreg_disable(vreg_ldo19);
-			vreg_disable(vreg_ldo20);
-		}
-	}
-}
-
-static void
-panel_renesas_fixup(uint16_t *mfr_name, uint16_t *product_code)
-{
-	printk("mddi fixup\n");
-	*mfr_name = 0xb9f6;
-	*product_code = 0x1408;
-}
-
-
-static struct msm_mddi_platform_data mddi_pdata = {
-	.fixup = panel_renesas_fixup,
-	.power_client = mddi_hitachi_power,
-	.fb_resource = resources_msm_fb,
-	.num_clients = 1,
-	.client_platform_data = {
-		{
-			.product_id = (0xb9f6 << 16 | 0x1408),
-			.name = "mddi_renesas_b9f6_61408",
-			.id = 0,
-			.client_data = &renesas_client_data,
-			.clk_rate = 0,
-		},
-	},
-};
-static struct platform_driver saga_backlight_driver = {
-	.probe = saga_backlight_probe,
-	.driver = {
-		.name = "renesas_backlight",
-		.owner = THIS_MODULE,
-	},
-};
-
-static struct msm_mdp_platform_data mdp_pdata_hitachi = {
-	//.overrides = MSM_MDP_PANEL_FLIP_UD | MSM_MDP_PANEL_FLIP_LR,
-	.overrides = MSM_MDP4_MDDI_DMA_SWITCH,
+struct msm_list_device saga_fb_devices[] = {
+  { "mdp", &mdp_pdata },
+  { "lcdc", &lcdc_pdata }
 };
 
 int __init saga_init_panel(void)
 {
-        int ret = 0;
-	int rc = 0;
+  int ret = 0;
 
-	vreg_ldo19 = vreg_get(NULL, "wlan2");
+  ret = panel_init_power();
+  if (ret)
+    return ret;
 
-	if (IS_ERR(vreg_ldo19)) {
-		pr_err("%s: wlan2 vreg get failed (%ld)\n",
-		       __func__, PTR_ERR(vreg_ldo19));
-		return -1;
-	}
-
-	/* lcd panel power */
-	/* 2.85V -- LDO20 */
-	vreg_ldo20 = vreg_get(NULL, "gp13");
-
-	if (IS_ERR(vreg_ldo20)) {
-		pr_err("%s: gp13 vreg get failed (%ld)\n",
-			__func__, PTR_ERR(vreg_ldo20));
-		return -1;
-	}
-
-	rc = vreg_set_level(vreg_ldo19, 1800);
-	if (rc) {
-		pr_err("%s: vreg LDO19 set level failed (%d)\n",
-		       __func__, rc);
-		return -1;
-	}
-
-
-	if (is_sony_panel()){
-		rc = vreg_set_level(vreg_ldo20, 2600);
-		if (rc) {
-			pr_err("%s: vreg LDO20 set level failed (%d)\n",
-				__func__, rc);
-			return -1;
-		}
-		ret = platform_device_register(&sonywvga_panel);
-	}
-	else if (is_hitachi_panel()){
-		rc = vreg_set_level(vreg_ldo20, 2850);
-		if (rc) {
-			pr_err("%s: vreg LDO20 set level failed (%d)\n",
-				__func__, rc);
-			return -1;
-		}
-		msm_device_mdp.dev.platform_data = &mdp_pdata_hitachi;
-		rc = platform_device_register(&msm_device_mdp);
-		if (rc)
-			return rc;
-
-		mddi_pdata.clk_rate = 384000000;
-		mddi_pdata.type = MSM_MDP_MDDI_TYPE_II;
-		msm_device_mddi0.dev.platform_data = &mddi_pdata;
-		rc = platform_device_register(&msm_device_mddi0);
-		if (rc)
-			return rc;
-		rc = platform_driver_register(&saga_backlight_driver);
-		if (rc)
-			return rc;
-	}
-
-	return ret;
+  msm_fb_add_devices(
+                     saga_fb_devices, ARARY_SIZE(saga_fb_devices));
+  if (is_sony_panel())
+    {
+      ret = platform_device_register(&lcdc_sonywvga_panel_device);
+      printk(KERN_ERR "%s: registered sony panel: %d\n", __func__, ret);
+    }
+  else
+    {
+      printk(KERN_ERR "%s: Panel not yet supported\n", __func__);
+      ret = -1;
+    }
+  return ret;
 }
 

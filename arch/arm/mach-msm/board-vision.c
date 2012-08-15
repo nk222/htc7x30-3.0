@@ -1958,36 +1958,6 @@ static struct platform_device android_pmem_device = {
 	.dev = { .platform_data = &android_pmem_pdata },
 };
 
-static struct resource msm_fb_resources[] = {
-	{
-		.flags  = IORESOURCE_MEM,
-	}
-};
-
-static int msm_fb_detect_panel(const char *name)
-{
-	if (!strcmp(name, "lcdc_s6d16a0x21_wvga")) {
-		printk("%s: Sony panel!\n", __func__);
-		return 0;
-	}
-	return -ENODEV;
-}
-
-static struct msm_fb_platform_data msm_fb_pdata = {
-	.detect_client = msm_fb_detect_panel,
-	.mddi_prescan = 1,
-};
-
-static struct platform_device msm_fb_device = {
-	.name   = "msm_fb",
-	.id     = 0,
-	.num_resources  = ARRAY_SIZE(msm_fb_resources),
-	.resource       = msm_fb_resources,
-	.dev    = {
-		.platform_data = &msm_fb_pdata,
-	}
-};
-
 static struct platform_device msm_migrate_pages_device = {
 	.name   = "msm_migrate_pages",
 	.id     = -1,
@@ -2119,216 +2089,6 @@ static struct platform_device msm_vpe_device = {
        .resource = msm_vpe_resources,
 };
 #endif
-
-static int panel_power(int on)
-{
-	int rc;
-	struct vreg *vreg_ldo19, *vreg_ldo20;
-	struct vreg *vreg_ldo12;
-
-	/* turn on L19 for OJ. Note: must before L12 */
-	vreg_ldo12 = vreg_get(NULL, "gp9");
-	vreg_set_level(vreg_ldo12, 2850);
-	vreg_ldo19 = vreg_get(NULL, "wlan2");
-
-	if (IS_ERR(vreg_ldo19)) {
-		pr_err("%s: wlan2 vreg get failed (%ld)\n",
-		       __func__, PTR_ERR(vreg_ldo19));
-		return -1;
-	}
-
-	/* lcd panel power */
-	/* 2.85V -- LDO20 */
-	vreg_ldo20 = vreg_get(NULL, "gp13");
-
-	if (IS_ERR(vreg_ldo20)) {
-		pr_err("%s: gp13 vreg get failed (%ld)\n",
-			__func__, PTR_ERR(vreg_ldo20));
-		return -1;
-	}
-
-	rc = vreg_set_level(vreg_ldo19, 1800);
-	if (rc) {
-		pr_err("%s: vreg LDO19 set level failed (%d)\n",
-		       __func__, rc);
-		return -1;
-	}
-
-	rc = vreg_set_level(vreg_ldo20, 2600);
-	if (rc) {
-		pr_err("%s: vreg LDO20 set level failed (%d)\n",
-			__func__, rc);
-		return -1;
-	}
-
-	if (on) {
-		rc = vreg_enable(vreg_ldo12);
-		rc = vreg_enable(vreg_ldo19);
-	}
-
-	if (rc) {
-		pr_err("%s: LDO19 vreg enable failed (%d)\n",
-		       __func__, rc);
-		return -1;
-	}
-
-	if (on)
-		rc = vreg_enable(vreg_ldo20);
-	if (rc) {
-		pr_err("%s: LDO20 vreg enable failed (%d)\n",
-			__func__, rc);
-		return -1;
-	}
-
-	if (on) {
-		hr_msleep(10);
-		gpio_set_value(VISION_LCD_RSTz, 1);
-		hr_msleep(10);
-		gpio_set_value(VISION_LCD_RSTz, 0);
-		udelay(500);
-		gpio_set_value(VISION_LCD_RSTz, 1);
-		hr_msleep(10);
-	} else if (!on) {
-		hr_msleep(10);
-		gpio_set_value(VISION_LCD_RSTz, 0);
-		hr_msleep(120);
-	}
-
-	if(!on) {
-		rc = vreg_disable(vreg_ldo19);
-		rc = vreg_disable(vreg_ldo12);
-		rc = vreg_disable(vreg_ldo20);
-	}
-
-	if (rc) {
-		pr_err("%s: LDO12, 19, 20 vreg disable failed (%d)\n",
-		__func__, rc);
-		return -1;
-	}
-
-	return 0;
-}
-
-#define LCM_GPIO_CFG(gpio, func) \
-PCOM_GPIO_CFG(gpio, func, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_4MA)
-static uint32_t display_on_gpio_table[] = {
-	LCM_GPIO_CFG(VISION_LCD_PCLK, 1),
-	LCM_GPIO_CFG(VISION_LCD_DE, 1),
-	LCM_GPIO_CFG(VISION_LCD_VSYNC, 1),
-	LCM_GPIO_CFG(VISION_LCD_HSYNC, 1),
-	LCM_GPIO_CFG(VISION_LCD_G2, 1),
-	LCM_GPIO_CFG(VISION_LCD_G3, 1),
-	LCM_GPIO_CFG(VISION_LCD_G4, 1),
-	LCM_GPIO_CFG(VISION_LCD_G5, 1),
-	LCM_GPIO_CFG(VISION_LCD_G6, 1),
-	LCM_GPIO_CFG(VISION_LCD_G7, 1),
-	LCM_GPIO_CFG(VISION_LCD_B3, 1),
-	LCM_GPIO_CFG(VISION_LCD_B4, 1),
-	LCM_GPIO_CFG(VISION_LCD_B5, 1),
-	LCM_GPIO_CFG(VISION_LCD_B6, 1),
-	LCM_GPIO_CFG(VISION_LCD_B7, 1),
-	LCM_GPIO_CFG(VISION_LCD_R3, 1),
-	LCM_GPIO_CFG(VISION_LCD_R4, 1),
-	LCM_GPIO_CFG(VISION_LCD_R5, 1),
-	LCM_GPIO_CFG(VISION_LCD_R6, 1),
-	LCM_GPIO_CFG(VISION_LCD_R7, 1),
-};
-
-static uint32_t display_off_gpio_table[] = {
-	LCM_GPIO_CFG(VISION_LCD_PCLK, 0),
-	LCM_GPIO_CFG(VISION_LCD_DE, 0),
-	LCM_GPIO_CFG(VISION_LCD_VSYNC, 0),
-	LCM_GPIO_CFG(VISION_LCD_HSYNC, 0),
-	LCM_GPIO_CFG(VISION_LCD_G2, 0),
-	LCM_GPIO_CFG(VISION_LCD_G3, 0),
-	LCM_GPIO_CFG(VISION_LCD_G4, 0),
-	LCM_GPIO_CFG(VISION_LCD_G5, 0),
-	LCM_GPIO_CFG(VISION_LCD_G6, 0),
-	LCM_GPIO_CFG(VISION_LCD_G7, 0),
-	LCM_GPIO_CFG(VISION_LCD_B0, 0),
-	LCM_GPIO_CFG(VISION_LCD_B3, 0),
-	LCM_GPIO_CFG(VISION_LCD_B4, 0),
-	LCM_GPIO_CFG(VISION_LCD_B5, 0),
-	LCM_GPIO_CFG(VISION_LCD_B6, 0),
-	LCM_GPIO_CFG(VISION_LCD_B7, 0),
-	LCM_GPIO_CFG(VISION_LCD_R0, 0),
-	LCM_GPIO_CFG(VISION_LCD_R3, 0),
-	LCM_GPIO_CFG(VISION_LCD_R4, 0),
-	LCM_GPIO_CFG(VISION_LCD_R5, 0),
-	LCM_GPIO_CFG(VISION_LCD_R6, 0),
-	LCM_GPIO_CFG(VISION_LCD_R7, 0),
-};
-
-static uint32_t display_gpio_table[] = {
-	VISION_LCD_PCLK,
-	VISION_LCD_DE,
-	VISION_LCD_VSYNC,
-	VISION_LCD_HSYNC,
-	VISION_LCD_G2,
-	VISION_LCD_G3,
-	VISION_LCD_G4,
-	VISION_LCD_G5,
-	VISION_LCD_G6,
-	VISION_LCD_G7,
-	VISION_LCD_B0,
-	VISION_LCD_B3,
-	VISION_LCD_B4,
-	VISION_LCD_B5,
-	VISION_LCD_B6,
-	VISION_LCD_B7,
-	VISION_LCD_R0,
-	VISION_LCD_R3,
-	VISION_LCD_R4,
-	VISION_LCD_R5,
-	VISION_LCD_R6,
-	VISION_LCD_R7,
-};
-
-static int panel_gpio_switch(int on)
-{
-	uint32_t pin, id;
-
-	config_gpio_table(
-		!!on ? display_on_gpio_table : display_off_gpio_table,
-		ARRAY_SIZE(display_on_gpio_table));
-
-	if (!on) {
-		for (pin = 0; pin < ARRAY_SIZE(display_gpio_table); pin++) {
-			gpio_set_value(display_gpio_table[pin], 0);
-		}
-		id = PCOM_GPIO_CFG(VISION_LCD_R6, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_4MA);
-		msm_proc_comm(PCOM_RPC_GPIO_TLMM_CONFIG_EX, &id, 0);
-		id = PCOM_GPIO_CFG(VISION_LCD_R7, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_4MA);
-		msm_proc_comm(PCOM_RPC_GPIO_TLMM_CONFIG_EX, &id, 0);
-		gpio_set_value(VISION_LCD_R6, 0);
-		gpio_set_value(VISION_LCD_R7, 0);
-	}
-
-	return 0;
-}
-
-/* a hacky interface to control the panel power */
-static void lcdc_config_gpios(int on)
-{
-	printk(KERN_INFO "%s: power goes to %d\n", __func__, on);
-
-	if (panel_power(on))
-		printk(KERN_ERR "%s: panel_power failed!\n", __func__);
-	if (panel_gpio_switch(on))
-		printk(KERN_ERR "%s: panel_gpio_switch failed!\n", __func__);
-}
-
-static struct msm_panel_common_pdata lcdc_panel_data = {
-	.panel_config_gpio = lcdc_config_gpios,
-};
-
-static struct platform_device lcdc_sonywvga_panel_device = {
-	.name   = "lcdc_s6d16a0x21_wvga",
-	.id     = 0,
-	.dev    = {
-		.platform_data = &lcdc_panel_data,
-	}
-};
 
 #ifdef CONFIG_MSM_CAMERA
 
@@ -3315,7 +3075,6 @@ static struct platform_device *devices[] __initdata = {
 #ifdef CONFIG_MSM_ROTATOR
         &msm_rotator_device,
 #endif
-        &lcdc_sonywvga_panel_device,
         &android_pmem_adsp_device,
         &android_pmem_audio_device,
         &msm_device_i2c,
@@ -3380,45 +3139,6 @@ static struct platform_device *devices[] __initdata = {
         &pm8058_leds,
 	//	&cable_detect_device,
 };
-
-int mdp_core_clk_rate_table[] = {
-	122880000,
-	122880000,
-	192000000,
-	192000000,
-};
-
-static struct msm_panel_common_pdata mdp_pdata = {
-	.hw_revision_addr = 0xac001270,
-	.gpio = 30,
-	.mdp_core_clk_rate = 122880000,
-	.mdp_core_clk_table = mdp_core_clk_rate_table,
-	.num_mdp_clk = ARRAY_SIZE(mdp_core_clk_rate_table),
-	.mdp_rev = MDP_REV_40,
-};
-
-static int lcdc_panel_power(int on)
-{
-	int flag_on = !!on;
-	static int lcdc_power_save_on;
-
-	if (lcdc_power_save_on == flag_on)
-		return 0;
-
-	lcdc_power_save_on = flag_on;
-
-	return panel_power(on);
-}
-
-static struct lcdc_platform_data lcdc_pdata = {
-	.lcdc_power_save = lcdc_panel_power,
-};
-
-static void __init msm_fb_add_devices(void)
-{
-	msm_fb_register_device("mdp", &mdp_pdata);
-	msm_fb_register_device("lcdc", &lcdc_pdata);
-}
 
 static void __init vision_init(void)
 {
@@ -3498,9 +3218,6 @@ static void __init vision_init(void)
 		vision_ts_atmel_data[1].config_T9[9] = 7;
 	}
 
-	/* mdp + lcdc */
-	msm_fb_add_devices();
-
 	msm_pm_set_platform_data(msm_pm_data, ARRAY_SIZE(msm_pm_data));
 	BUG_ON(msm_pm_boot_init(MSM_PM_BOOT_CONFIG_RESET_VECTOR, ioremap(0x0, PAGE_SIZE)));
 
@@ -3566,6 +3283,7 @@ static void __init vision_init(void)
 #ifdef CONFIG_MDP4_HW_VSYNC
 	vision_te_gpio_config();
 #endif
+        vision_init_panel();
 	vision_audio_init();
 	vision_wifi_init();
 	msm_init_pmic_vibrator(3000);
