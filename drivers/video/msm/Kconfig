@@ -197,6 +197,11 @@ config FB_MSM_LCDC_SONY_WVGA
 	select FB_MSM_LCDC_PANEL
 	default n
 
+config FB_MSM_LCDC_SPADE_WVGA
+	bool
+	select FB_MSM_LCDC_PANEL
+	default n
+
 config FB_MSM_LCDC_SAMSUNG_TL2796A_WVGA
 	bool
 	select FB_MSM_LCDC_PANEL
@@ -352,6 +357,13 @@ config FB_MSM_SAGA_PANEL
 	select FB_MSM_LCDC_SONY_WVGA
 	---help---
 	  Support for Saga WVGA (800x480) panels
+
+config FB_MSM_SPADE_PANEL
+	depends on FB_MSM_LCDC_HW && MACH_SPADE
+	bool "LCDC Spade WVGA Panels"
+	select FB_MSM_LCDC_SPADE_WVGA
+	---help---
+	  Support for Spade WVGA (800x480) panels
 
 config FB_MSM_LCDC_PRISM_WVGA_PANEL
 	depends on FB_MSM_LCDC_HW

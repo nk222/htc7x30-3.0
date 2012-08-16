@@ -142,6 +142,8 @@ static inline int is_hitachi_panel(void){
 
 static int panel_init_power(void)
 {
+  int rc;
+
   vreg_ldo19 = vreg_get(NULL, "wlan2");
   
   if (IS_ERR(vreg_ldo19)) {
@@ -166,7 +168,7 @@ static int panel_init_power(void)
            __func__, rc);
     return -1;
   }
-  retrn 0;
+  return 0;
 }
 
 static int panel_sony_power(int on)
@@ -244,9 +246,6 @@ struct platform_device lcdc_sonywvga_panel_device = {
 
 enum led_brightness brightness_value = DEFAULT_BRIGHTNESS;
 
-/* use one flag to have better backlight on/off performance */
-static int saga_set_dim = 1;
-
 int mdp_core_clk_rate_table[] = {
   122880000,
   122880000,
@@ -294,7 +293,7 @@ int __init saga_init_panel(void)
     return ret;
 
   msm_fb_add_devices(
-                     saga_fb_devices, ARARY_SIZE(saga_fb_devices));
+                     saga_fb_devices, ARRAY_SIZE(saga_fb_devices));
   if (is_sony_panel())
     {
       ret = platform_device_register(&lcdc_sonywvga_panel_device);

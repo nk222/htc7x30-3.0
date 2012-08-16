@@ -173,7 +173,6 @@ unsigned int saga_get_engineerid(void);
 int saga_init_mmc(unsigned int sys_rev);
 void __init saga_audio_init(void);
 int __init saga_init_panel(void);
-void __init msm_fb_add_devices(void);
 int saga_init_keypad(void);
 int __init saga_wifi_init(void);
 int __init saga_init_panel(void);

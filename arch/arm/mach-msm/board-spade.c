@@ -158,7 +158,6 @@ struct pm8xxx_gpio_init_info {
 };
 
 static unsigned int engineerid;
-extern unsigned long msm_fb_base;
 
 unsigned int spade_get_engineerid(void)
 {
@@ -1745,12 +1744,6 @@ static struct platform_device android_pmem_device = {
 	.dev = { .platform_data = &android_pmem_pdata },
 };
 
-static struct resource msm_fb_resources[] = {
-	{
-		.flags  = IORESOURCE_DMA,
-	}
-};
-
 static struct platform_device msm_migrate_pages_device = {
 	.name   = "msm_migrate_pages",
 	.id     = -1,
@@ -3006,6 +2999,7 @@ static struct platform_device *devices[] __initdata = {
         &msm_device_ssbi7,
 #endif
         &android_pmem_device,
+        &msm_fb_device,
         &msm_migrate_pages_device,
 #ifdef CONFIG_MSM_ROTATOR
         &msm_rotator_device,
@@ -3331,7 +3325,6 @@ static void __init spade_allocate_memory_regions(void)
 	size = fb_size ? : MSM_FB_SIZE;
 	addr = alloc_bootmem_align(size, 0x1000);
 	msm_fb_resources[0].start = __pa(addr);
-	msm_fb_base = msm_fb_resources[0].start;
 	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
 	printk("allocating %lu bytes at %p (%lx physical) for fb\n",
 			size, addr, __pa(addr));
