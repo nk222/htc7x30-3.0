@@ -28,6 +28,9 @@ void __init msm9615_init_irq(void);
 void config_gpio_table_dbg(uint32_t *, int, char *, int);
 #define config_gpio_table(a, b) config_gpio_table_dbg(a, b, __FILE__, __LINE__)
 int panel_init_spi_hack(void);
+#if defined(CONFIG_FB_MSM_LCDC_AUTO_DETECT) || defined(CONFIG_FB_MSM_MDDI_AUTO_DETECT)
+int device_fb_detect_panel(const char *name);
+#endif
 
 extern struct platform_device asoc_msm_pcm;
 extern struct platform_device asoc_msm_dai0;

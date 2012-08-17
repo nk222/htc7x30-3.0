@@ -189,6 +189,11 @@ static int panel_power(int on)
   return -EINVAL;
 }
 
+int device_fb_detect_panel(const char *name)
+{
+  if (!strcmp(name, "lcdc_spade_wvga"))
+    return 0;
+}
 
 /* a hacky interface to control the panel power */
 static void lcdc_config_gpios(int on)

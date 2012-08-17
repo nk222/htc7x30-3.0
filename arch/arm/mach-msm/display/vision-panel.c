@@ -223,6 +223,17 @@ int panel_power(int on)
   return rc;
 }
 
+int device_fb_detect_panel(const char *name)
+{
+  if (!strcmp(name, "lcdc_s6d16a0x21_wvga") && is_sony_panel())
+    return 0;
+  if (!strcmp(name, "lcdc_tl2796a_wvga") && (panel_type == SAMSUNG_PANEL))
+    return 0;
+  if (!strcmp(name, "lcdc_s6e63m0_wvga") && (panel_type == SAMSUNG_PANELII))
+    return 0;
+  return -ENODEV;
+}
+
 static int panel_gpio_switch(int on)
 {
   uint32_t pin, id;

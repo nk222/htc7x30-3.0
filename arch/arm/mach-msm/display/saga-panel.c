@@ -244,7 +244,41 @@ struct platform_device lcdc_sonywvga_panel_device = {
 	}
 };
 
-enum led_brightness brightness_value = DEFAULT_BRIGHTNESS;
+static struct msm_panel_common_pdata mddi_renesas_pdata;
+static struct platform_device mddi_renesas_device = {
+	.name   = "mddi_renesas_R61408_wvga",
+	.id     = 0,
+	.dev    = {
+		.platform_data = &mddi_renesas_pdata,
+	}
+};
+
+static int msm_fb_mddi_sel_clk(u32 *clk_rate)
+{
+  *clk_rate *= 2;
+	return 0;
+}
+
+static int
+mddi_hitachi_power(u32 on)
+{
+  printk(KERN_ERR "%s: %d\n", __func__, on);
+	if (panel_type == PANEL_ID_SAG_HITACHI) {
+          vreg_enable(vreg_ldo19);
+          gpio_set_value(SAGA_MDDI_RSTz,0);
+          vreg_enable(vreg_ldo20);
+          hr_msleep(1);
+          gpio_set_value(SAGA_MDDI_RSTz,1);
+          hr_msleep(5);
+        }
+        return 1;
+}
+
+static struct mddi_platform_data mddi_pdata = {
+  //.mddi_power_save = mddi_hitachi_power,
+	.mddi_sel_clk = msm_fb_mddi_sel_clk,
+	.mddi_client_power = mddi_hitachi_power,
+};
 
 int mdp_core_clk_rate_table[] = {
   122880000,
@@ -281,8 +315,17 @@ static struct lcdc_platform_data lcdc_pdata = {
 
 struct msm_list_device saga_fb_devices[] = {
   { "mdp", &mdp_pdata },
+  { "pmdh", &mddi_pdata },
   { "lcdc", &lcdc_pdata }
 };
+
+int device_fb_detect_panel(const char *name)
+{
+  if (!strcmp(name, "lcdc_s6d16a0x21_wvga") && is_sony_panel())
+      return 0;
+  if (!strcmp(name, "mddi_renesas_R61408_wvga") && is_hitachi_panel())
+    return 0;
+}
 
 int __init saga_init_panel(void)
 {
@@ -296,13 +339,15 @@ int __init saga_init_panel(void)
                      saga_fb_devices, ARRAY_SIZE(saga_fb_devices));
   if (is_sony_panel())
     {
+      //    msm_fb_register_device("lcdc", &lcdc_pdata);
       ret = platform_device_register(&lcdc_sonywvga_panel_device);
-      printk(KERN_ERR "%s: registered sony panel: %d\n", __func__, ret);
+      printk(KERN_ERR "%s is sony panel: %d\n", __func__, panel_type);
     }
   else
     {
-      printk(KERN_ERR "%s: Panel not yet supported\n", __func__);
-      ret = -1;
+      //      msm_fb_register_device("mddi", &mddi_pdata);
+      //      ret = platform_device_register(&mddi_renesas_device);
+      printk(KERN_ERR "%s: Panel not yet supported (%d)\n", __func__, panel_type);
     }
   return ret;
 }

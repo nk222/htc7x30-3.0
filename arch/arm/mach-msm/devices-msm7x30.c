@@ -1207,12 +1207,22 @@ static void __init msm_register_device(struct platform_device *pdev, void *data)
 
 struct resource msm_fb_resources[] = {
 	{
-		.flags  = IORESOURCE_MEM,
+		.flags  = IORESOURCE_DMA,
 	}
 };
 
+static int msm_fb_detect_panel(const char *name)
+{
+#if defined(CONFIG_FB_MSM_LCDC_AUTO_DETECT) || defined(CONFIG_FB_MSM_MDDI_AUTO_DETECT)
+  return device_fb_detect_panel(name);
+#else
+  return -ENODEV;
+#endif
+}
+
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.mddi_prescan = 1,
+        .detect_client = msm_fb_detect_panel,
 };
 
 struct platform_device msm_fb_device = {
