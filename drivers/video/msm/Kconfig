@@ -486,6 +486,7 @@ config FB_MSM_LCDC_PANEL_AUTO_DETECT
         select FB_MSM_LCDC_SAMSUNG_TL2796A_WVGA
         select FB_MSM_LCDC_SAMSUNG_S6E63M0_WVGA
 	select FB_MSM_LCDC_SPADE_WVGA
+        select FB_MSM_MDDI_RENESAS_R61408_WVGA
 	---help---
 	  Support for LCDC panel auto detect
 
