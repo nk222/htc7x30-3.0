@@ -492,6 +492,10 @@ config FB_MSM_LCDC_PANEL_AUTO_DETECT
 config FB_MSM_LCDC_MIPI_PANEL_AUTO_DETECT
 	bool "LCDC + MIPI Panel Auto Detect"
 	select FB_MSM_LCDC_AUTO_DETECT
+        select FB_MSM_LCDC_SONY_WVGA
+        select FB_MSM_LCDC_SAMSUNG_TL2796A_WVGA
+        select FB_MSM_LCDC_SAMSUNG_S6E63M0_WVGA
+	select FB_MSM_LCDC_SPADE_WVGA
         select FB_MSM_MDDI_RENESAS_R61408_WVGA
 	---help---
 	  Support for LCDC + MIPI panel auto detect
