@@ -55,44 +55,54 @@ struct mdp4_overlay_ctrl {
 } mdp4_overlay_db = {
 	.cs_controller = CS_CONTROLLER_0,
 	.plist = {
-		{
-			.pipe_type = OVERLAY_TYPE_RGB,
-			.pipe_num = OVERLAY_PIPE_RGB1,
-			.pipe_ndx = 1,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_RGB,
-			.pipe_num = OVERLAY_PIPE_RGB2,
-			.pipe_ndx = 2,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_VIDEO,
-			.pipe_num = OVERLAY_PIPE_VG1,
-			.pipe_ndx = 3,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_VIDEO,
-			.pipe_num = OVERLAY_PIPE_VG2,
-			.pipe_ndx = 4,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_BF,
-			.pipe_num = OVERLAY_PIPE_RGB3,
-			.pipe_ndx = 5,
-			.mixer_num = MDP4_MIXER0,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_BF,
-			.pipe_num = OVERLAY_PIPE_VG3,
-			.pipe_ndx = 6,
-			.mixer_num = MDP4_MIXER1,
-		},
-		{
-			.pipe_type = OVERLAY_TYPE_BF,
-			.pipe_num = OVERLAY_PIPE_VG4,
-			.pipe_ndx = 7,
-			.mixer_num = MDP4_MIXER2,
-		},
+                {
+                        .pipe_type = OVERLAY_TYPE_RGB,
+                        .pipe_num = OVERLAY_PIPE_RGB1,
+                        .pipe_ndx = 1,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_RGB,
+                        .pipe_num = OVERLAY_PIPE_RGB2,
+                        .pipe_ndx = 2,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_RGB,
+                        .pipe_num = OVERLAY_PIPE_VG1,
+                        .pipe_ndx = 3,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_RGB,
+                        .pipe_num = OVERLAY_PIPE_VG2,
+                        .pipe_ndx = 4,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_BF,
+                        .pipe_num = OVERLAY_PIPE_RGB3,
+                        .pipe_ndx = 5,
+                        .mixer_num = MDP4_MIXER0,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_BF,
+                        .pipe_num = OVERLAY_PIPE_VG3,
+                        .pipe_ndx = 6,
+                        .mixer_num = MDP4_MIXER1,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_BF,
+                        .pipe_num = OVERLAY_PIPE_VG4,
+                        .pipe_ndx = 7,
+                        .mixer_num = MDP4_MIXER2,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_VIDEO,
+                        .pipe_num = OVERLAY_PIPE_VG1,
+                        .pipe_ndx = 8,
+                },
+                {
+                        .pipe_type = OVERLAY_TYPE_VIDEO,
+                        .pipe_num = OVERLAY_PIPE_VG2,
+                        .pipe_ndx = 9,
+                },
 	},
 };
 
