@@ -49,11 +49,11 @@ extern struct platform_device msm_device_mddi0;
 
 #define MSM_PMEM_ADSP_SIZE	0x02600000
 
-#define MSM_PMEM_AUDIO_SIZE	0x00200000
+#define MSM_PMEM_AUDIO_SIZE	0x00000000
 
 #define PMEM_KERNEL_EBI1_SIZE   0x00600000
 
-#define MSM_PMEM_SF_SIZE	0x01800000
+#define MSM_PMEM_SF_SIZE	0x02000000
 
 #define MSM_FB_SIZE		0x00465000
 
