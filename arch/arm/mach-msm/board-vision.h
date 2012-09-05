@@ -39,7 +39,7 @@ extern struct platform_device msm_device_mddi0;
 #define MSM_LINUX_BASE1		0x04000000
 #define MSM_LINUX_SIZE1		0x0C000000
 #define MSM_LINUX_BASE2		0x20000000
-#define MSM_LINUX_SIZE2		0x10400000
+#define MSM_LINUX_SIZE2		0x10000000
 
 #define MSM_GPU_MEM_BASE	0x00100000
 #define MSM_GPU_MEM_SIZE	0x00300000
@@ -53,7 +53,7 @@ extern struct platform_device msm_device_mddi0;
 
 #define PMEM_KERNEL_EBI1_SIZE   0x00600000
 
-#define MSM_PMEM_SF_SIZE	0x02000000
+#define MSM_PMEM_SF_SIZE	0x01E00000
 
 #define MSM_FB_SIZE		0x00465000
 
