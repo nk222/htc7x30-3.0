@@ -76,6 +76,7 @@ extern uint32 mdp_intr_mask;
 
 struct mdp_buf_type {
 	struct ion_handle *ihdl;
+	u32 phys_addr;
 	u32 write_addr;
 	u32 read_addr;
 	u32 size;

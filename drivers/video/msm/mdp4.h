@@ -353,6 +353,7 @@ struct mdp4_overlay_pipe {
 	uint32 element0; /* 0 = C0, 1 = C1, 2 = C2, 3 = C3 */
 	ulong ov_blt_addr; /* blt mode addr */
 	ulong dma_blt_addr; /* blt mode addr */
+	ulong blt_addr;
 	ulong blt_base;
 	ulong blt_offset;
 	uint32 blt_cnt;
@@ -532,7 +533,7 @@ static inline void mdp4_dtv_overlay_blt_stop(struct msm_fb_data_type *mfd)
 {
 	return;
 }
-static inline void mdp4_dtv_base_swap(struct mdp4_overlay_pipe *pipe)
+static inline void mdp4_dtv_base_swap(int cndx, struct mdp4_overlay_pipe *pipe)
 {
 	/* empty */
 }
@@ -703,6 +704,12 @@ static inline int mdp4_dsi_overlay_blt_start(struct msm_fb_data_type *mfd)
 static inline int mdp4_dsi_overlay_blt_stop(struct msm_fb_data_type *mfd)
 {
 	return -ENODEV;
+}
+static inline void mdp4_dsi_cmd_blt_start(struct msm_fb_data_type *mfd)
+{
+}
+static inline void mdp4_dsi_cmd_blt_stop(struct msm_fb_data_type *mfd)
+{
 }
 static inline void mdp4_dsi_video_blt_start(struct msm_fb_data_type *mfd)
 {
