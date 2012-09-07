@@ -369,6 +369,28 @@ choice
 	prompt "LCD Panel"
 	default FB_MSM_MDDI_AUTO_DETECT
 
+config FB_MSM_VISION_PANEL
+	depends on FB_MSM_LCDC_HW && MACH_VISION
+	bool "LCDC Vision WVGA Panels"
+	select FB_MSM_LCDC_PANEL
+	---help---
+	  Support for Vision WVGA (800x480) panels
+
+config FB_MSM_SAGA_PANEL
+	depends on FB_MSM_LCDC_HW && MACH_SAGA
+	bool "LCDC Saga WVGA Panels"
+	select FB_MSM_LCDC_PANEL
+	select FB_MSM_MDDI
+	---help---
+	  Support for Saga WVGA (800x480) panels
+
+config FB_MSM_SPADE_PANEL
+	depends on FB_MSM_LCDC_HW && MACH_SPADE
+	bool "LCDC Spade WVGA Panels"
+	select FB_MSM_LCDC_PANEL
+	---help---
+	  Support for Spade WVGA (800x480) panels
+
 config FB_MSM_LCDC_PRISM_WVGA_PANEL
 	depends on FB_MSM_LCDC_HW
 	bool "LCDC Prism WVGA Panel"
