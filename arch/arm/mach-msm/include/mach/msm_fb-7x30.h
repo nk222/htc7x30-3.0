@@ -431,4 +431,6 @@ extern struct completion mdp_hist_comp;
 #endif
 #endif
 
+int device_fb_detect_panel(const char *name);
+
 #endif /* _MSM_FB_7X30_H_ */

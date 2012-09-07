@@ -40,6 +40,7 @@
 #endif
 #include <mach/dal_axi.h>
 #include <mach/msm_memtypes.h>
+#include <mach/msm_fb-7x30.h>
 
 void config_gpio_table_dbg(uint32_t *table, int len, char *file, int line)
 {
@@ -1204,7 +1205,6 @@ static void __init msm_register_device(struct platform_device *pdev, void *data)
 }
 
 #ifdef CONFIG_FB_MSM_NEW
-
 struct resource msm_fb_resources[] = {
 	{
 		.flags  = IORESOURCE_DMA,
@@ -1213,16 +1213,12 @@ struct resource msm_fb_resources[] = {
 
 static int msm_fb_detect_panel(const char *name)
 {
-#if defined(CONFIG_FB_MSM_LCDC_AUTO_DETECT) || defined(CONFIG_FB_MSM_MDDI_AUTO_DETECT)
-  return device_fb_detect_panel(name);
-#else
-  return -ENODEV;
-#endif
+	return device_fb_detect_panel(name);
 }
 
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.mddi_prescan = 1,
-        .detect_client = msm_fb_detect_panel,
+	.detect_client = msm_fb_detect_panel,
 };
 
 struct platform_device msm_fb_device = {
@@ -1238,10 +1234,9 @@ struct platform_device msm_fb_device = {
 
 void __init msm_fb_add_devices(struct msm_list_device *devices, int len)
 {
-  int i;
-
-  for (i = 0; i < len; ++i)
-    msm_fb_register_device(devices[i].name, devices[i].data);
+	int i;
+	for (i = 0; i < len; ++i)
+		msm_fb_register_device(devices[i].name, devices[i].data);
 }
 
 

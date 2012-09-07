@@ -980,10 +980,8 @@ static int __init spadewvga_init(void)
 	int ret;
 	struct msm_panel_info *pinfo;
 
-#ifdef CONFIG_FB_MSM_LCDC_AUTO_DETECT
 	if (msm_fb_detect_client("lcdc_spade_wvga"))
 		return 0;
-#endif
 
 	ret = platform_driver_register(&this_driver);
 	if (ret) {

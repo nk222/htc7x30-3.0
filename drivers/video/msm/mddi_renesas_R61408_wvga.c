@@ -421,13 +421,12 @@ static int __init mddi_renesas_init(void)
 {
 	int ret;
 	struct msm_panel_info *pinfo;
-        printk(KERN_ERR "%s + (%d/%d)\n", __func__, panel_type, PANEL_ID_SAG_HITACHI);
-        if (panel_type != PANEL_ID_SAG_HITACHI)
-          return -ENODEV;
-        printk(KERN_ERR "%s +\n", __func__);
-#ifdef CONFIG_FB_MSM_MDDI_AUTO_DETECT
-	u32 id;
+	printk(KERN_ERR "%s + (%d/%d)\n", __func__, panel_type, PANEL_ID_SAG_HITACHI);
+	if (panel_type != PANEL_ID_SAG_HITACHI)
+		return -ENODEV;
+	printk(KERN_ERR "%s +\n", __func__);
 
+	u32 id;
 	ret = msm_fb_detect_client("mddi_renesas_R61408_wvga");
 	if (ret == -ENODEV)
 		return 0;
@@ -438,7 +437,7 @@ static int __init mddi_renesas_init(void)
 		if (((id >> 16) != 0x4474) || ((id & 0xffff) == 0x8960))
 			return 0;
 	}
-#endif
+
 	ret = platform_driver_register(&this_driver);
 	if (!ret) {
 		pinfo = &renesas_panel_data.panel_info;
