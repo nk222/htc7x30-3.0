@@ -40,7 +40,7 @@
 #endif
 #include <mach/dal_axi.h>
 #include <mach/msm_memtypes.h>
-#include <mach/msm_fb-7x30.h>
+#include <mach/msm_fb.h>
 
 void config_gpio_table_dbg(uint32_t *table, int len, char *file, int line)
 {
