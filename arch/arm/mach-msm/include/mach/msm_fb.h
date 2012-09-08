@@ -187,8 +187,6 @@ struct msm_mddi_bridge_platform_data {
 	uint32_t panel_caps;
 };
 
-/* for boards with multi-panels builtin */
-int device_fb_detect_panel(const char *name);
 
 struct mdp_v4l2_req;
 int msm_fb_v4l2_enable(struct mdp_overlay *req, bool enable, void **par);
