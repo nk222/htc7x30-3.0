@@ -243,6 +243,14 @@ config VB6801
 	---help---
 	  5M with flash
 
+config MSM_V4L2_VIDEO_OVERLAY_DEVICE
+	tristate "Qualcomm MSM V4l2 video overlay device"
+	---help---
+	  Enables support for the MSM V4L2 video
+	  overlay driver. This allows video rendering
+	  apps to render overlaid video using Video4Linux2
+	  APIs, by using /dev/videoX device
+
 config MSM_CAMERA_FLASH
 	bool "Qualcomm MSM camera flash support"
 	depends on MSM_CAMERA

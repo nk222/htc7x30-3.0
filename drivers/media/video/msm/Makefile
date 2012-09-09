@@ -49,6 +49,7 @@ obj-$(CONFIG_MACH_KINGDOM) += s5k4e5yx.o s5k4e5yx_reg.o
 endif
 
 obj-$(CONFIG_S5K4E1GX) += s5k4e1gx.o s5k4e1gx_reg.o
+obj-$(CONFIG_MSM_V4L2_VIDEO_OVERLAY_DEVICE) += msm_v4l2_video.o
 
 ifdef CONFIG_CAMERA_ZSL
 	obj-$(CONFIG_ARCH_MSM8X60) += msm_io_8x60.o msm_vfe_8x60_ZSL.o msm_vpe1_8x60.o
