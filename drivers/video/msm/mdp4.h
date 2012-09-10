@@ -521,7 +521,7 @@ static inline void mdp4_dtv_wait4vsync(int cndx, long long *vtime)
 {
     /* empty */
 }
-static inline void mdp4_dtv_vsync_ctrl(int cndx, long long *vtime)
+static inline void mdp4_dtv_vsync_ctrl(int cndx, int enable)
 {
     /* empty */
 }
