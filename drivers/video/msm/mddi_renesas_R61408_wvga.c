@@ -431,12 +431,13 @@ static int __init mddi_renesas_init(void)
 	if (ret == -ENODEV)
 		return 0;
 
+#ifdef CONFIG_FB_MSM_MDDI_AUTO_DETECT
 	if (ret) {
 		id = mddi_get_client_id();
-
 		if (((id >> 16) != 0x4474) || ((id & 0xffff) == 0x8960))
 			return 0;
 	}
+#endif
 
 	ret = platform_driver_register(&this_driver);
 	if (!ret) {
