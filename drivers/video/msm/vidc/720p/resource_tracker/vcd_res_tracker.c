@@ -751,7 +751,13 @@ struct ion_client *res_trk_get_ion_client(void)
 
 u32 res_trk_get_mem_type(void)
 {
-	u32 mem_type = ION_HEAP(resource_context.memtype);
+	u32 mem_type;
+
+	if (resource_context.vidc_platform_data->enable_ion)
+		mem_type = ION_HEAP(resource_context.memtype);
+	else
+		mem_type = resource_context.memtype;
+
 	return mem_type;
 }
 
