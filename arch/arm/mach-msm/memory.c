@@ -325,9 +325,11 @@ void __init msm_reserve(void)
 
 static int get_ebi_memtype(void)
 {
+#if 0
 	/* on 7x30 and 8x55 "EBI1 kernel PMEM" is really on EBI0 */
 	if (cpu_is_msm7x30() || cpu_is_msm8x55())
 		return MEMTYPE_EBI0;
+#endif
 	return MEMTYPE_EBI1;
 }
 
